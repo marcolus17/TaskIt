@@ -1,51 +1,51 @@
 //
-//  TaskDetailViewController.swift
+//  AddTaskViewController.swift
 //  TaskIt
 //
-//  Created by Nicholas Markworth on 5/11/15.
+//  Created by Nicholas Markworth on 5/12/15.
 //  Copyright (c) 2015 Nick Markworth. All rights reserved.
 //
 
-import Foundation
 import UIKit
 
-class TaskDetailViewController: UIViewController, UITextFieldDelegate {
+class AddTaskViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet weak var taskTextField: UITextField!
     @IBOutlet weak var subtaskTextField: UITextField!
     @IBOutlet weak var dueDatePicker: UIDatePicker!
     
-    var detailTaskModel: TaskModel!
+    // Used to pass the main ViewController during segue
     var mainVC: ViewController!
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
+
         // Do any additional setup after loading the view.
         let tapGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "tappedView")
         self.view.addGestureRecognizer(tapGesture)
         self.taskTextField.delegate = self
         self.subtaskTextField.delegate = self
-        
-        println(self.detailTaskModel.task)
-        self.taskTextField.text = detailTaskModel.task
-        self.subtaskTextField.text = detailTaskModel.subtask
-        self.dueDatePicker.date = detailTaskModel.date
     }
-    
+
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
-    @IBAction func cancelBarButtonItemPressed(sender: UIBarButtonItem) {
-        self.navigationController?.popViewControllerAnimated(true)
+
+    @IBAction func cancelButtonPressed(sender: UIButton) {
+        self.dismissViewControllerAnimated(true, completion: nil)
     }
     
-    @IBAction func doneBarButtonItemPressed(sender: UIBarButtonItem) {
-        var task = TaskModel(task: taskTextField.text, subtask: subtaskTextField.text, date: dueDatePicker.date, completed: detailTaskModel.completed)
-        // Update the existing row with the new information
-        mainVC.baseArray[mainVC.tableView.indexPathForSelectedRow()!.section][mainVC.tableView.indexPathForSelectedRow()!.row] = task
-        self.navigationController?.popViewControllerAnimated(true)
+    @IBAction func addTaskButtonPressed(sender: UIButton) {
+        if taskTextField.text != "" {
+            var task = TaskModel(task: taskTextField.text, subtask: subtaskTextField.text, date: dueDatePicker.date, completed: false)
+            // Add the new task to the TableViewController's array
+            mainVC?.baseArray[0].append(task)
+            self.dismissViewControllerAnimated(true, completion: nil)
+        }
+        else {
+            Alert.showAlertWithText(viewController: self, header: "Missing Information", message: "Please fill out the task field.")
+        }
     }
     
     // Dismiss keyboard
