@@ -7,22 +7,23 @@
 //
 
 import UIKit
+import CoreData
 
 class AddTaskViewController: UIViewController, UITextFieldDelegate {
     
+    // Outlets for UI fields
     @IBOutlet weak var taskTextField: UITextField!
     @IBOutlet weak var subtaskTextField: UITextField!
     @IBOutlet weak var dueDatePicker: UIDatePicker!
-    
-    // Used to pass the main ViewController during segue
-    var mainVC: ViewController!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         // Do any additional setup after loading the view.
+        
+        // Creating a tap gesture recognizer in order to dismiss the keyboard when the main view is touched
         let tapGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "tappedView")
         self.view.addGestureRecognizer(tapGesture)
+        // Must assing the parent view as the delegate and add UITextFieldDelegate to class
         self.taskTextField.delegate = self
         self.subtaskTextField.delegate = self
     }
@@ -32,15 +33,44 @@ class AddTaskViewController: UIViewController, UITextFieldDelegate {
         // Dispose of any resources that can be recreated.
     }
 
+    // Cancel the edit and return to the main screen
     @IBAction func cancelButtonPressed(sender: UIButton) {
         self.dismissViewControllerAnimated(true, completion: nil)
     }
     
+    // Add a new task to the list
     @IBAction func addTaskButtonPressed(sender: UIButton) {
         if taskTextField.text != "" {
-            var task = TaskModel(task: taskTextField.text, subtask: subtaskTextField.text, date: dueDatePicker.date, completed: false)
-            // Add the new task to the TableViewController's array
-            mainVC?.baseArray[0].append(task)
+            /*
+             * UIApplication represents our entire application; gaining access to the AppDelegate
+             * sharedApplication() returns a singleton
+             */
+            let appDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+            
+            // Get the "scratchboard" for adding a new task entity
+            let managedObjectContext = appDelegate.managedObjectContext
+            // Describes the TaskModel entity used in the next step
+            let entityDescription = NSEntityDescription.entityForName("TaskModel", inManagedObjectContext: managedObjectContext!)
+            
+            // Set up our task
+            let task = TaskModel(entity: entityDescription!, insertIntoManagedObjectContext: managedObjectContext!)
+            task.task = taskTextField.text
+            task.subtask = subtaskTextField.text
+            task.date = dueDatePicker.date
+            task.completed = false
+            
+            // Called to save the data to CoreData
+            appDelegate.saveContext()
+            
+            // Getting the information that we just saved
+            var request = NSFetchRequest(entityName: "TaskModel")
+            var error: NSError? = nil
+            // &: Write the error to the memory address if an error occurs
+            var results: NSArray = managedObjectContext!.executeFetchRequest(request, error: &error)!
+            for res in results {
+                println(res)
+            }
+            
             self.dismissViewControllerAnimated(true, completion: nil)
         }
         else {
@@ -48,7 +78,7 @@ class AddTaskViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
-    // Dismiss keyboard
+    // Dismiss keyboard if main view is touched
     func tappedView() {
         for view in self.view.subviews {
             if view.isKindOfClass(UITextField) {
@@ -57,6 +87,7 @@ class AddTaskViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    // Dismiss keyboard if Return button is pressed on the keyboard
     func textFieldShouldReturn(textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return false
