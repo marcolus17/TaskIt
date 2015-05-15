@@ -23,7 +23,7 @@ class Date {
     
     // Helper function to format an NSDate into a String for displaying
     class func toString(#date: NSDate) -> String {
-        // Will display like this: M/dd/yy
+        // Will display like this for the US: M/dd/yy
         let dateString = NSDateFormatter.localizedStringFromDate(date, dateStyle: NSDateFormatterStyle.ShortStyle, timeStyle: NSDateFormatterStyle.NoStyle)
         return dateString
     }
