@@ -54,10 +54,24 @@ class AddTaskViewController: UIViewController, UITextFieldDelegate {
             
             // Set up our task
             let task = TaskModel(entity: entityDescription!, insertIntoManagedObjectContext: managedObjectContext!)
-            task.task = taskTextField.text
+            
+            // Use our new settings options
+            if NSUserDefaults.standardUserDefaults().boolForKey(kShouldCapitalizeTaskKey) == true {
+                task.task = taskTextField.text.capitalizedString
+            }
+            else {
+                task.task = taskTextField.text
+            }
+            
             task.subtask = subtaskTextField.text
             task.date = dueDatePicker.date
-            task.completed = false
+            
+            if NSUserDefaults.standardUserDefaults().boolForKey(kShouldCompleteNewTodoKey) == true {
+                task.completed = true
+            }
+            else {
+                task.completed = false
+            }
             
             // Called to save the data to CoreData
             appDelegate.saveContext()
