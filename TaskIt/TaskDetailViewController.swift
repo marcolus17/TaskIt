@@ -10,6 +10,10 @@ import Foundation
 import UIKit
 import CoreData
 
+@objc protocol TaskDetailViewControllerDelegate {
+    optional func taskDetailEdited()
+}
+
 class TaskDetailViewController: UIViewController, UITextFieldDelegate {
     
     // Outlets for UI Fields
@@ -19,6 +23,9 @@ class TaskDetailViewController: UIViewController, UITextFieldDelegate {
     
     // Holds the information for the task being passed in
     var detailTaskModel: TaskModel!
+    
+    // Delegate property for the protocol
+    var delegate: TaskDetailViewControllerDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,6 +42,8 @@ class TaskDetailViewController: UIViewController, UITextFieldDelegate {
         self.taskTextField.text = detailTaskModel.task
         self.subtaskTextField.text = detailTaskModel.subtask
         self.dueDatePicker.date = detailTaskModel.date
+        
+        
     }
     
     override func didReceiveMemoryWarning() {
@@ -60,6 +69,8 @@ class TaskDetailViewController: UIViewController, UITextFieldDelegate {
             
             appDelegate.saveContext()
             self.navigationController?.popViewControllerAnimated(true)
+            // Tell our delegate that we are done editing
+            delegate?.taskDetailEdited!()
         }
         else {
             Alert.showAlertWithText(viewController: self, header: "Missing Information", message: "Please fill in the task field.")

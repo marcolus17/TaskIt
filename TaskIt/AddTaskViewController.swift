@@ -9,12 +9,21 @@
 import UIKit
 import CoreData
 
+// MARK: - AddTaskViewControllerDelegate Protocol
+protocol AddTaskViewControllerDelegate {
+    func addTask(message: String)
+    func addTaskCanceled(message: String)
+}
+
 class AddTaskViewController: UIViewController, UITextFieldDelegate {
     
     // Outlets for UI fields
     @IBOutlet weak var taskTextField: UITextField!
     @IBOutlet weak var subtaskTextField: UITextField!
     @IBOutlet weak var dueDatePicker: UIDatePicker!
+    
+    // Delegate for our protocol
+    var delegate: AddTaskViewControllerDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,6 +45,8 @@ class AddTaskViewController: UIViewController, UITextFieldDelegate {
     // Cancel the edit and return to the main screen
     @IBAction func cancelButtonPressed(sender: UIButton) {
         self.dismissViewControllerAnimated(true, completion: nil)
+        // Tell our delegate that we did not add a task
+        delegate?.addTaskCanceled("Task was not added.")
     }
     
     // Add a new task to the list
@@ -86,6 +97,8 @@ class AddTaskViewController: UIViewController, UITextFieldDelegate {
             }
             
             self.dismissViewControllerAnimated(true, completion: nil)
+            // Tell our delegate that we added a task
+            delegate?.addTask("Task added.")
         }
         else {
             Alert.showAlertWithText(viewController: self, header: "Missing Information", message: "Please fill out the task field.")

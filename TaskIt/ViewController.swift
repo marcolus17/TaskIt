@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate {
+class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate, TaskDetailViewControllerDelegate, AddTaskViewControllerDelegate {
     
     // Outlet for the UITableView
     @IBOutlet weak var tableView: UITableView!
@@ -66,7 +66,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         return cell
     }
     
-    // Complete and uncomplete tasks
+    /* 
+        Complete and uncomplete tasks
+        Note: if we wanted to delete a task completely use the below functions...
+        CoreDataManager.sharedInstance.managedObjectContext?.deleteObject(task)
+        CoreDataManager.sharedInstance.saveContext()
+    */
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         let thisTask: TaskModel = fetchedResultsController.objectAtIndexPath(indexPath) as! TaskModel
         
@@ -93,10 +98,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             let detailVC: TaskDetailViewController = segue.destinationViewController as! TaskDetailViewController
             let indexPath = self.tableView.indexPathForSelectedRow()
             let thisTask: TaskModel = fetchedResultsController.objectAtIndexPath(indexPath!) as! TaskModel
+            // Implement our optional protocol
+            detailVC.delegate = self
             detailVC.detailTaskModel = thisTask
         }
         else if segue.identifier == "showAddTask" {
             let addTaskVC: AddTaskViewController = segue.destinationViewController as! AddTaskViewController
+            // Implement our required protocol
+            addTaskVC.delegate = self
         }
     }
 
@@ -128,6 +137,21 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     // MARK: - NSFetchResultsControllerDelegate Functions
     func controllerDidChangeContent(controller: NSFetchedResultsController) {
         tableView.reloadData()
+    }
+    
+    // MARK: - Optional TaskDetailViewControllerDelegate function
+    func taskDetailEdited() {
+        // Let the user know the detail of the task was edited
+        Alert.showAlertWithText(viewController: self, header: "Changes Made", message: "The detail for the selected task was changed.")
+    }
+    
+    // MARK: - Required AddTaskViewControllerDelegate functions
+    func addTaskCanceled(message: String) {
+        Alert.showAlertWithText(viewController: self, header: "Add Task", message: message)
+    }
+    
+    func addTask(message: String) {
+        Alert.showAlertWithText(viewController: self, header: "Add Task", message: message)
     }
 }
 
