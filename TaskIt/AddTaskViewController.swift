@@ -21,6 +21,7 @@ class AddTaskViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var taskTextField: UITextField!
     @IBOutlet weak var subtaskTextField: UITextField!
     @IBOutlet weak var dueDatePicker: UIDatePicker!
+    @IBOutlet weak var dueDatePickerContainerView: UIView!
     
     // Delegate for our protocol
     var delegate: AddTaskViewControllerDelegate?
@@ -28,6 +29,10 @@ class AddTaskViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        
+        self.view.backgroundColor = UIColor(patternImage: UIImage(named: "Background")!)
+        self.dueDatePickerContainerView.layer.cornerRadius = 5;
+        self.dueDatePickerContainerView.layer.masksToBounds = true;
         
         // Creating a tap gesture recognizer in order to dismiss the keyboard when the main view is touched
         let tapGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "tappedView")
@@ -56,10 +61,13 @@ class AddTaskViewController: UIViewController, UITextFieldDelegate {
              * UIApplication represents our entire application; gaining access to the AppDelegate
              * sharedApplication() returns a singleton
              */
-            let appDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+            // let appDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
             
             // Get the "scratchboard" for adding a new task entity
-            let managedObjectContext = appDelegate.managedObjectContext
+            // let managedObjectContext = appDelegate.managedObjectContext
+            
+            // Use iCloud managedObjectContext instead
+            let managedObjectContext = ModelManager.instance.managedObjectContext
             // Describes the TaskModel entity used in the next step
             let entityDescription = NSEntityDescription.entityForName("TaskModel", inManagedObjectContext: managedObjectContext!)
             
@@ -85,7 +93,10 @@ class AddTaskViewController: UIViewController, UITextFieldDelegate {
             }
             
             // Called to save the data to CoreData
-            appDelegate.saveContext()
+            //appDelegate.saveContext()
+            
+            // Save changes to iCloud
+            ModelManager.instance.saveContext()
             
             // Getting the information that we just saved
             var request = NSFetchRequest(entityName: "TaskModel")

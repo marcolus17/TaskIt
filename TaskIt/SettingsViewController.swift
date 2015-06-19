@@ -21,6 +21,9 @@ class SettingsViewController: UIViewController, UITableViewDelegate, UITableView
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        self.view.backgroundColor = UIColor(patternImage: UIImage(named: "Background")!)
+        self.navigationItem.backBarButtonItem?.image = UIImage(named: "BackButton")
+        
         self.capitalizeTableView.delegate = self
         self.capitalizeTableView.dataSource = self
         self.capitalizeTableView.scrollEnabled = false
@@ -76,9 +79,9 @@ class SettingsViewController: UIViewController, UITableViewDelegate, UITableView
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        var capitalizeCell: UITableViewCell = UITableViewCell()
         if tableView == self.capitalizeTableView {
-            capitalizeCell = tableView.dequeueReusableCellWithIdentifier("capitalizeCell") as! UITableViewCell
+            var capitalizeCell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("capitalizeCell") as! UITableViewCell
+            capitalizeCell.textLabel?.textColor = UIColor.lightGrayColor()
             if indexPath.row == 0 {
                 capitalizeCell.textLabel?.text = "No do not Capitalize"
                 capitalizeCell.accessoryType = setAccessoryTypeForKey(kShouldCapitalizeTaskKey, whenKeyEqualsBool: false)
@@ -91,6 +94,7 @@ class SettingsViewController: UIViewController, UITableViewDelegate, UITableView
         }
         else {
             var completeCell: UITableViewCell = tableView.dequeueReusableCellWithIdentifier("completeNewTodoCell") as! UITableViewCell
+            completeCell.textLabel?.textColor = UIColor.lightGrayColor()
             if indexPath.row == 0 {
                 completeCell.textLabel?.text = "Do not complete task"
                 completeCell.accessoryType = setAccessoryTypeForKey(kShouldCompleteNewTodoKey, whenKeyEqualsBool: false)

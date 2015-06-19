@@ -20,6 +20,7 @@ class TaskDetailViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var taskTextField: UITextField!
     @IBOutlet weak var subtaskTextField: UITextField!
     @IBOutlet weak var dueDatePicker: UIDatePicker!
+    @IBOutlet weak var dueDatePickerContainerView: UIView!
     
     // Holds the information for the task being passed in
     var detailTaskModel: TaskModel!
@@ -30,6 +31,10 @@ class TaskDetailViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        
+        self.view.backgroundColor = UIColor(patternImage: UIImage(named: "Background")!)
+        self.dueDatePickerContainerView.layer.cornerRadius = 5;
+        self.dueDatePickerContainerView.layer.masksToBounds = true;
         
         // Creating a tap gesture recognizer in order to dismiss the keyboard when the main view is touched
         let tapGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "tappedView")
@@ -59,7 +64,7 @@ class TaskDetailViewController: UIViewController, UITextFieldDelegate {
     // Edit the information in the task and return to the main screen
     @IBAction func doneBarButtonItemPressed(sender: UIBarButtonItem) {
         if taskTextField.text != "" {
-            let appDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+            // let appDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
             
             // Make any necessary changes to the task
             detailTaskModel.task = taskTextField.text
@@ -67,7 +72,10 @@ class TaskDetailViewController: UIViewController, UITextFieldDelegate {
             detailTaskModel.date = dueDatePicker.date
             detailTaskModel.completed = detailTaskModel.completed
             
-            appDelegate.saveContext()
+            // appDelegate.saveContext()
+            // Save changes to iCloud
+            ModelManager.instance.saveContext()
+            
             self.navigationController?.popViewControllerAnimated(true)
             // Tell our delegate that we are done editing
             delegate?.taskDetailEdited!()

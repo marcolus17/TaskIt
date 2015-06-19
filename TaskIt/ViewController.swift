@@ -15,7 +15,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     @IBOutlet weak var tableView: UITableView!
     
     // The "scratchboard" for adding a new task entity
-    let managedObjectContext = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext!
+    // let managedObjectContext = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext!
     // Used to update the TableView with our CoreData entities
     var fetchedResultsController: NSFetchedResultsController = NSFetchedResultsController()
 
@@ -24,11 +24,17 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         // Remember to connect the tableView to the ViewController in the storyboard (DataSource and Delegate)
         // This can also be done in code - self.tableView.delegate = self and self.tableView.dataSource = self
         
+        self.view.backgroundColor = UIColor(patternImage: UIImage(named: "Background")!)
+        
         // Do any additional setup after loading the view, typically from a nib.
         fetchedResultsController = getFetchedResultsController()
         fetchedResultsController.delegate = self
         // Grab the initial stored entities
         fetchedResultsController.performFetch(nil)
+        
+        // "Listen to the radio station" and listen for iCloud to be updated
+        // coreDataUpdated = kCoreDataUpdated in ModelManager class
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("iCloudUpdated"), name: "coreDataUpdated", object: nil)
     }
 
     override func didReceiveMemoryWarning() {
@@ -83,7 +89,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             thisTask.completed = 0
         }
         
-        (UIApplication.sharedApplication().delegate as! AppDelegate).saveContext()
+        // (UIApplication.sharedApplication().delegate as! AppDelegate).saveContext()
+        
+        // Save the changes to iCloud
+        ModelManager.instance.saveContext()
     }
     
     // MARK: - UITableViewDelegate functions
@@ -130,7 +139,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     // Get the fetchedResultsController
     func getFetchedResultsController() -> NSFetchedResultsController {
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: taskFetchRequest(), managedObjectContext: managedObjectContext, sectionNameKeyPath: "completed", cacheName: nil)
+        // fetchedResultsController = NSFetchedResultsController(fetchRequest: taskFetchRequest(), managedObjectContext: managedObjectContext, sectionNameKeyPath: "completed", cacheName: nil)
+        
+        // Use the iCloud managedObjectContext
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: taskFetchRequest(), managedObjectContext: ModelManager.instance.managedObjectContext!, sectionNameKeyPath: "completed", cacheName: nil)
         return fetchedResultsController
     }
     
@@ -152,6 +164,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func addTask(message: String) {
         Alert.showAlertWithText(viewController: self, header: "Add Task", message: message)
+    }
+    
+    // MARK: - iCloud Notification handler
+    func iCloudUpdated() {
+        tableView.reloadData()
     }
 }
 
